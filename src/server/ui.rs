@@ -593,8 +593,10 @@ async fn recipe_page(
             }
 
             // Build uncombined ingredients for cooking mode, sorted by aisle order
-            let mut cooking_mode_ingredients_with_key: Vec<(Option<(usize, usize)>, IngredientData)> =
-                Vec::new();
+            let mut cooking_mode_ingredients_with_key: Vec<(
+                Option<(usize, usize)>,
+                IngredientData,
+            )> = Vec::new();
             for idx in &cooking_mode_ingredient_indices {
                 if let Some(ingredient) = recipe.ingredients.get(*idx) {
                     if !ingredient.modifiers().should_be_listed() {
@@ -632,11 +634,10 @@ async fn recipe_page(
                 (None, None) => a.1.name.cmp(&b.1.name),
             });
 
-            let cooking_mode_ingredients: Vec<IngredientData> =
-                cooking_mode_ingredients_with_key
-                    .into_iter()
-                    .map(|(_, data)| data)
-                    .collect();
+            let cooking_mode_ingredients: Vec<IngredientData> = cooking_mode_ingredients_with_key
+                .into_iter()
+                .map(|(_, data)| data)
+                .collect();
 
             sections.push(RecipeSection {
                 name: section.name.clone(),
