@@ -79,7 +79,7 @@ impl RecipeTemplate {
             .iter()
             .map(|section| {
                 let ingredients: Vec<serde_json::Value> = section
-                    .ingredients
+                    .cooking_mode_ingredients
                     .iter()
                     .map(|ing| {
                         serde_json::json!({
@@ -282,6 +282,9 @@ pub struct RecipeSection {
     pub items: Vec<RecipeSectionItem>,
     pub step_offset: usize,
     pub ingredients: Vec<IngredientData>,
+    /// Uncombined ingredients for cooking mode mise en place, sorted by aisle order.
+    /// Each ingredient occurrence appears separately (not merged by name).
+    pub cooking_mode_ingredients: Vec<IngredientData>,
 }
 
 #[derive(Debug, Clone, Serialize)]

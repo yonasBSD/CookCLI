@@ -579,6 +579,7 @@ async fn recipe_page(
                 items: section_items.clone(),
                 step_offset: total_steps,
                 ingredients: section_ingredients,
+                cooking_mode_ingredients: Vec::new(), // Populated in Task 3
             });
             total_steps += step_count;
         }
