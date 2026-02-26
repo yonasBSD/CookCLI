@@ -235,7 +235,12 @@ async fn recipe_page(
     let aisle_content = state
         .aisle_path
         .as_ref()
-        .and_then(|path| std::fs::read_to_string(path.as_std_path()).ok())
+        .and_then(|path| {
+            std::fs::read_to_string(path.as_std_path()).map_err(|e| {
+                tracing::warn!("Failed to read aisle file from {:?}: {}", path, e);
+                e
+            }).ok()
+        })
         .unwrap_or_default();
     let aisle = cooklang::aisle::parse_lenient(&aisle_content)
         .into_output()
