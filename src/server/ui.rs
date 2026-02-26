@@ -232,16 +232,17 @@ async fn recipe_page(
     };
 
     // Load aisle config for cooking mode ingredient sorting
-    let aisle_content = state
-        .aisle_path
-        .as_ref()
-        .and_then(|path| {
-            std::fs::read_to_string(path.as_std_path()).map_err(|e| {
+    let aisle_content = if let Some(path) = &state.aisle_path {
+        match tokio::fs::read_to_string(path).await {
+            Ok(content) => content,
+            Err(e) => {
                 tracing::warn!("Failed to read aisle file from {:?}: {}", path, e);
-                e
-            }).ok()
-        })
-        .unwrap_or_default();
+                String::new()
+            }
+        }
+    } else {
+        String::new()
+    };
     let aisle = cooklang::aisle::parse_lenient(&aisle_content)
         .into_output()
         .unwrap_or_default();

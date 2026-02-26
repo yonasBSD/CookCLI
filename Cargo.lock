@@ -585,7 +585,7 @@ dependencies = [
  "camino",
  "chrono",
  "clap",
- "cooklang 0.18.1",
+ "cooklang 0.18.2",
  "cooklang-find 0.5.0",
  "cooklang-import",
  "cooklang-language-server",
@@ -654,7 +654,9 @@ dependencies = [
 
 [[package]]
 name = "cooklang"
-version = "0.18.1"
+version = "0.18.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f30e6cdedc47ba92108b6c08a0cb820311724763cf5925478adc10c7f07ca814"
 dependencies = [
  "bitflags 2.9.1",
  "codesnake",
@@ -4615,7 +4617,7 @@ version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0978bf7171b3d90bac376700cb56d606feb40f251a475a5d6634613564460b22"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
