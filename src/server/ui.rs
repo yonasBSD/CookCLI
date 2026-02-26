@@ -231,6 +231,22 @@ async fn recipe_page(
         }
     };
 
+    // Load aisle config for cooking mode ingredient sorting
+    let aisle_content = if let Some(path) = &state.aisle_path {
+        match tokio::fs::read_to_string(path).await {
+            Ok(content) => content,
+            Err(e) => {
+                tracing::warn!("Failed to read aisle file from {:?}: {}", path, e);
+                String::new()
+            }
+        }
+    } else {
+        String::new()
+    };
+    let aisle = cooklang::aisle::parse_lenient(&aisle_content)
+        .into_output()
+        .unwrap_or_default();
+
     let tags = entry.tags();
 
     // Get the image path if available
@@ -341,6 +357,7 @@ async fn recipe_page(
     for section in &recipe.sections {
         let mut section_items = Vec::new();
         let mut section_ingredient_indices = std::collections::HashSet::new();
+        let mut cooking_mode_ingredient_indices: Vec<usize> = Vec::new();
         let mut step_count = 0;
 
         for content in &section.content {
@@ -368,6 +385,7 @@ async fn recipe_page(
                             }
                             Item::Ingredient { index } => {
                                 section_ingredient_indices.insert(*index);
+                                cooking_mode_ingredient_indices.push(*index);
                                 if let Some(ing) = recipe.ingredients.get(*index) {
                                     let reference_path = ing.reference.as_ref().map(|r| {
                                         // For web URLs - always use forward slash
@@ -574,11 +592,59 @@ async fn recipe_page(
                 });
             }
 
+            // Build uncombined ingredients for cooking mode, sorted by aisle order
+            let mut cooking_mode_ingredients_with_key: Vec<(
+                Option<(usize, usize)>,
+                IngredientData,
+            )> = Vec::new();
+            for idx in &cooking_mode_ingredient_indices {
+                if let Some(ingredient) = recipe.ingredients.get(*idx) {
+                    if !ingredient.modifiers().should_be_listed() {
+                        continue;
+                    }
+                    let sort_key = aisle.ingredient_sort_key(&ingredient.name);
+
+                    let (formatted_quantity, formatted_unit) = if let Some(q) = &ingredient.quantity
+                    {
+                        let qty_str = crate::util::format::format_quantity(q.value());
+                        let unit_str = q.unit().as_ref().map(|u| u.to_string());
+                        (qty_str, unit_str)
+                    } else {
+                        (None, None)
+                    };
+
+                    cooking_mode_ingredients_with_key.push((
+                        sort_key,
+                        IngredientData {
+                            name: ingredient.name.to_string(),
+                            quantity: formatted_quantity,
+                            unit: formatted_unit,
+                            note: ingredient.note.clone(),
+                            reference_path: None,
+                        },
+                    ));
+                }
+            }
+
+            // Sort: aisle items first (by category_index, ingredient_index), then uncategorized at end
+            cooking_mode_ingredients_with_key.sort_by(|a, b| match (&a.0, &b.0) {
+                (Some(ka), Some(kb)) => ka.cmp(kb),
+                (Some(_), None) => std::cmp::Ordering::Less,
+                (None, Some(_)) => std::cmp::Ordering::Greater,
+                (None, None) => a.1.name.cmp(&b.1.name),
+            });
+
+            let cooking_mode_ingredients: Vec<IngredientData> = cooking_mode_ingredients_with_key
+                .into_iter()
+                .map(|(_, data)| data)
+                .collect();
+
             sections.push(RecipeSection {
                 name: section.name.clone(),
                 items: section_items.clone(),
                 step_offset: total_steps,
                 ingredients: section_ingredients,
+                cooking_mode_ingredients,
             });
             total_steps += step_count;
         }
