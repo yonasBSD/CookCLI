@@ -2,10 +2,10 @@
 
 Start a local web server to browse and view your recipe collection.
 
-<img width="600" height="359" alt="recipes" src="https://github.com/user-attachments/assets/b18ec5b9-4959-49be-9784-86f73f0e34e2" />
-<img width="600" height="359" alt="recipe" src="https://github.com/user-attachments/assets/e24b7b90-7bf7-4a5d-b1e0-585995a647c6" />
-<img width="600" height="359" alt="shopping" src="https://github.com/user-attachments/assets/8c9036ca-a902-4f09-901c-905c6f8325a2" />
-<img width="600" height="359" alt="pantry" src="https://github.com/user-attachments/assets/92d20226-eeb4-4b64-8833-ee7d9b3578a9" />
+<img width="600" alt="recipes" src="screenshots/recipe-list.png" />
+<img width="600" alt="recipe" src="screenshots/recipe-detail.png" />
+<img width="600" alt="shopping list" src="screenshots/shopping-list.png" />
+<img width="600" alt="pantry" src="screenshots/pantry.png" />
 
 ## Usage
 
